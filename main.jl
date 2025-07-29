@@ -1,2 +1,3 @@
 import Pkg; Pkg.activate(".")
-include("src/main.jl")
+using CDtoMAX3SAT
+main()

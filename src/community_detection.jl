@@ -2,7 +2,8 @@ using SimpleWeightedGraphs
 using Random
 using Graphs
 
-function detect_communities(g::SimpleWeightedGraph)
+function label_propagation(g::SimpleWeightedGraph)
+    debug = (nv(g) < 10)
     # Currently using simple label propagation
     n = nv(g)
     labels = collect(1:n)
@@ -10,18 +11,23 @@ function detect_communities(g::SimpleWeightedGraph)
     while label_changed
         label_changed = false
         for v in randperm(n)
+            debug && @show v
             label_counts = Dict{Int, Int}()
             for nbr in neighbors(g, v)
                 label_counts[labels[nbr]] = get(label_counts, labels[nbr], 0) + g.weights[v, nbr]
             end
-            max_count = maximum(values(label_counts))
-            most_frequent_labels = [label for (label, count) in label_counts if count == max_count]
-            new_label = rand(most_frequent_labels)
-            if new_label != labels[v]
-                labels[v] = new_label
-                label_changed = true
+            if !isempty(label_counts)
+                max_count = maximum(values(label_counts))
+                most_frequent_labels = [label for (label, count) in label_counts if count == max_count]
+                new_label = rand(most_frequent_labels)
+                debug && @show new_label
+                if new_label != labels[v]
+                    labels[v] = new_label
+                    label_changed = true
+                end
             end
         end
+        debug && @show labels
     end
     return labels
 end
