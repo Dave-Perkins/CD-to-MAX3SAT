@@ -1,0 +1,7 @@
+c Small test instance with 6 variables and 5 clauses
+p cnf 6 5
+1 2 3 0
+2 3 4 0
+3 4 5 0
+4 5 6 0
+-2 -3 -6 0
