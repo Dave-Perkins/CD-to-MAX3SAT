@@ -8,6 +8,8 @@ include("./cnf_parser.jl")
 include("./graph_builder.jl")
 include("./community_detection.jl")
 include("./modularity.jl")
+include("./MAX3SAT_solver.jl")
+include("./MAX3SAT_checker.jl")
 
 using Graphs
 
@@ -25,27 +27,47 @@ function main(instance_file = nothing)
         println("Clauses (first 10): $(first(clauses, 10))")
     end
 
-    g = build_graph(clauses)
-    if debug
-        println("Number of vertices: ", nv(g))
-        println("Number of edges: ", ne(g))
-        println("Edges:")
-        for e in edges(g)
-            println(e)
+    # missing means not assigned yet
+    assignments = Vector{Union{Bool,Missing}}(missing, num_vars)
+
+    while any(ismissing, assignments)
+
+        g = build_graph(clauses, assignments)
+        if debug
+            println("Number of vertices: ", nv(g))
+            println("Number of edges: ", ne(g))
+            println("Edges:")
+            for e in edges(g)
+                println(e)
+            end
         end
+
+        labels = label_propagation(g)
+        @show labels
+
+        modularity = calculate_modularity(g, labels)
+        @show modularity
+
+        num_unique_communities = length(unique(labels))
+        @show num_unique_communities
+
+        assign(labels, clauses, assignments)
+        @show assignments
+
+        # readline()
     end
 
-    labels = label_propagation(g)
-    @show labels
-
-    modularity = calculate_modularity(g, labels)
-    @show modularity
-
-    num_unique_communities = length(unique(labels))
-    @show num_unique_communities
+    score = get_max3sat_score(clauses, assignments)
+    println("score = $score out of $num_clauses = $(round(score/num_clauses, digits = 2))")
 
 end
 
-export parse_cnf_file, build_graph, label_propagation, main, calculate_modularity
+export  parse_cnf_file, 
+        build_graph, 
+        label_propagation, 
+        main, 
+        calculate_modularity,
+        assign,
+        get_max3sat_score
 
 end

@@ -1,0 +1,2 @@
+### Building the graph in graph_builder.jl
+When we check two clauses to see if there should be an edge connecting them, we should not consider any literals that have already been assigned a truth value.

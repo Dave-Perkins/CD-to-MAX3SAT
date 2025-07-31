@@ -1,7 +1,9 @@
 using Graphs
 using SimpleWeightedGraphs
 
-function build_graph(clauses::Vector{Vector{Int}})
+function build_graph(clauses::Vector{Vector{Int}},
+                     assignments::Vector{Union{Bool,Missing}})
+
     debug = (length(clauses) < 10)
     num_clauses = length(clauses)
     g = SimpleWeightedGraph(num_clauses)
@@ -11,11 +13,11 @@ function build_graph(clauses::Vector{Vector{Int}})
             clause2 = clauses[j]
             conflicts = 0
             for literal in clause1
-                if -literal in clause2
+                if ismissing(assignments[abs(literal)]) && -literal in clause2
                     conflicts += 1
                 end
             end
-            if conflicts > 1
+            if conflicts > 0
                 debug && println("Adding edge $i to $j for conflicts = $conflicts")
                 add_edge!(g, i, j)
             end
