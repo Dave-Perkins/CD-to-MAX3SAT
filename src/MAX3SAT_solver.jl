@@ -16,27 +16,48 @@ Edges are typically undirected unless specified otherwise.
 
 function assign(labels::Vector{Int}, 
                 clauses::Vector{Vector{Int}},
-                assignments::Vector{Union{Bool,Missing}})
+                assignments::Vector{Union{Bool,Missing}},
+                debug::Bool)
 
     # Find the largest community
     largest_community_label = mode(labels)
-    @show largest_community_label
+    debug && @show largest_community_label
     # Assign truth values to the variables found in this community
     indices = findall(x -> x == largest_community_label, labels)
-    @show indices
+    debug && @show indices
     all_literals = Int[]
     for i in indices
-        @show clauses[i]
+        debug && @show clauses[i]
         append!(all_literals, clauses[i])
     end
     unique_literals = unique(vcat(all_literals))
-    @show unique_literals
+    debug && @show unique_literals
     for literal in unique_literals
         v = abs(literal) # in case literal is a negation
         if ismissing(assignments[v])
             # here is where I need a more robust strategy:
-            assignments[v] = true
+            assignments[v] = rand(Bool)
         end
     end
-    @show assignments
+
+    # readline()
+
+    # Check if any clauses have two falses:
+    for clause in clauses
+        debug && println(">>>> clause = $clause")
+        assigned = [assignments[abs(l)] for l in clause]
+        debug && println(">>>> assigned = $assigned")
+        # readline()
+        num_false = count(x -> x === false, assigned)
+        num_missing = count(ismissing, assigned)
+        if num_false == 2 && num_missing == 1
+            debug && println(">>>> found an example!")
+            missing_idx = findfirst(ismissing, assigned)
+            v = abs(clause[missing_idx])
+            assignments[v] = true
+            # readline()
+        end
+    end
+    
+    debug && @show assignments
 end

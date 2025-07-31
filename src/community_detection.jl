@@ -3,7 +3,6 @@ using Random
 using Graphs
 
 function label_propagation(g::SimpleWeightedGraph)
-    debug = (nv(g) < 10)
     # Currently using simple label propagation
     n = nv(g)
     labels = collect(1:n)

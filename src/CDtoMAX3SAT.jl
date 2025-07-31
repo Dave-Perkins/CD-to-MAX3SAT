@@ -19,20 +19,21 @@ function main(instance_file = nothing)
     elseif instance_file === nothing
         instance_file = "./instances/test-9v-5c.cnf"
     end
+
     num_vars, num_clauses, clauses = parse_cnf_file(instance_file)
+    
     debug = (num_clauses < 10)
-    if debug
-        println("Number of variables: $num_vars")
-        println("Number of clauses: $num_clauses")
-        println("Clauses (first 10): $(first(clauses, 10))")
-    end
+    
+    println("Number of variables: $num_vars")
+    println("Number of clauses: $num_clauses")
+    println("Clauses (first 10): $(first(clauses, 10))")
 
     # missing means not assigned yet
     assignments = Vector{Union{Bool,Missing}}(missing, num_vars)
 
     while any(ismissing, assignments)
 
-        g = build_graph(clauses, assignments)
+        g = build_graph(clauses, assignments, debug)
         if debug
             println("Number of vertices: ", nv(g))
             println("Number of edges: ", ne(g))
@@ -43,21 +44,21 @@ function main(instance_file = nothing)
         end
 
         labels = label_propagation(g)
-        @show labels
+        debug && @show labels
 
         modularity = calculate_modularity(g, labels)
-        @show modularity
+        debug && @show modularity
 
         num_unique_communities = length(unique(labels))
-        @show num_unique_communities
+        debug && @show num_unique_communities
 
-        assign(labels, clauses, assignments)
-        @show assignments
+        assign(labels, clauses, assignments, debug)
+        debug && @show assignments
 
         # readline()
     end
 
-    score = get_max3sat_score(clauses, assignments)
+    score = get_max3sat_score(clauses, assignments, debug)
     println("score = $score out of $num_clauses = $(round(score/num_clauses, digits = 2))")
 
 end
