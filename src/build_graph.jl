@@ -1,5 +1,6 @@
 using Graphs
 using SimpleWeightedGraphs
+using StatsBase: sample, pweights 
 
 function build_graph(clauses::Vector{Vector{Int}},
                      assignments::Vector{Union{Bool,Missing}},
@@ -19,7 +20,8 @@ function build_graph(clauses::Vector{Vector{Int}},
                         conflicts += 1
                     end
                 end
-                if conflicts > 0
+                num_conflicts_lower_bound = nv(g) < 10 ? 1 : sample([1, 2], pweights([0.15, 0.85]))
+                if conflicts ≥ num_conflicts_lower_bound
                     debug && println("Adding edge $i to $j for conflicts = $conflicts")
                     add_edge!(g, i, j)
                 end

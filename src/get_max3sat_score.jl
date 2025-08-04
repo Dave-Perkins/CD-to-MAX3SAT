@@ -2,6 +2,18 @@ function get_max3sat_score(clauses::Vector{Vector{Int}},
                            assignments::Vector{Union{Bool,Missing}},
                            debug::Bool)
 
+    # println("="^40)
+    # println("Getting my max3sat score")
+    # println("="^40)
+
+    # Make sure that all assignments are true or false
+    if any(ismissing, assignments)
+        println("-"^40)
+        println("Attempted to score while there are missings!")
+        println("-"^40)
+        return
+    end
+
     num_satisfied_clauses = 0
 
     if debug

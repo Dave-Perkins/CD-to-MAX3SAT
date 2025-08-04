@@ -5,7 +5,7 @@ function calculate_modularity(g::SimpleWeightedGraph, labels::Vector{Int})
     Q = 0.0
     for i in 1:nv(g)
         for j in 1:nv(g)
-            if i != j && labels[i] == labels[j]
+            if labels[i] == labels[j]
                 A_ij = g.weights[i, j]
                 k_i = sum(g.weights[i, :])
                 k_j = sum(g.weights[j, :])

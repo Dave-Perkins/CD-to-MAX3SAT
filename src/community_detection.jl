@@ -4,10 +4,13 @@ using Graphs
 
 function label_propagation(g::SimpleWeightedGraph)
     # Currently using simple label propagation
+    max_iterations = 5
+    iter = 0
     n = nv(g)
     labels = collect(1:n)
     label_changed = true
-    while label_changed
+    while label_changed && iter < max_iterations
+        iter += 1
         label_changed = false
         for v in randperm(n)
             label_counts = Dict{Int, Int}()
